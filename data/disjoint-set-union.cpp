@@ -14,6 +14,7 @@ private:
     vector<ll> parent;
     vector<ll> depth;
     vector<ll> sz;
+    ll comps;
 
 public:
     DSU(ll n)
@@ -24,6 +25,7 @@ public:
         parent.resize(n);
         depth.resize(n);
         sz.resize(n);
+        comps = n - 1;
 
         iota(parent.begin(), parent.end(), 0LL);
         fill(depth.begin(), depth.end(), 0LL);
@@ -83,5 +85,12 @@ public:
     {
         ll rep = find_representative(node);
         return sz[rep];
+    }
+
+    // get the number of components 
+
+    ll get_no_of_comps()
+    {
+        return comps;
     }
 };
