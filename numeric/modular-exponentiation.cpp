@@ -1,7 +1,7 @@
 // Modular Exponentiation (modpow)
 
-// Basically finds x^n where n is a very big number and takes mod of it with modval
-// If x is also a very big number, first you take x = x % modval and then use modpow
+// Basically finds x^n where n is a very big number and takes mod of it
+// If x is also a very big number, first you take x = x % mod and then use modpow
 
 // Example: 5^3301 % (1e9 + 7) is 227837252
 
