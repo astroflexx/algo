@@ -64,6 +64,7 @@ public:
 
             parent[rep2] = rep1;
             sz[rep1] += sz[rep2];
+            comps--;
 
             if (depth[rep1] == depth[rep2])
             {

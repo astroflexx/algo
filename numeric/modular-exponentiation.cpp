@@ -7,7 +7,7 @@
 
 // Works in O(log(n)) time
 
-ll modpow(ll x, ll n, const ll modval)
+ll modpow(ll x, ll n, const ll mod)
 {
     if (n == 0)
     {
@@ -16,12 +16,12 @@ ll modpow(ll x, ll n, const ll modval)
 
     else
     {
-        ll u = modpow(x, n / 2, modval);
-        u = (u * u) % modval;
+        ll u = modpow(x, n / 2, mod);
+        u = (u * u) % mod;
 
         if (n % 2 == 1)
         {
-            u = (x * u) % modval;
+            u = (x * u) % mod;
         }
 
         return u;
