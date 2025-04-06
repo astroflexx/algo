@@ -227,7 +227,7 @@ using modint1000000007 = modint<1000000007>;
 // --------------- SET THIS ---------------
 // MAKE SURE TO CALL precompute_factorials(ll n) IF YOU WANT IT
 
-using mint = modint1000000007;
+using mint = 
 
 // vector<mint> fact, inv_fact;
 
