@@ -1,3 +1,28 @@
+// Chinese Remainder Theorem
+
+// given a list of congruencies:
+// a = a1 (mod m1)
+// a = a2 (mod m2)
+// ...
+// a = ak (mod mk)
+
+// we know a_i, m_i
+// all m_i are pairwise coprime
+// find a
+
+// M = m1 * m2 * ... * mk
+
+// the solution is given by:
+// a = sum[i = 1 to k] a_i * M_i * N_i (mod M)
+// where N_i = inverse of M_i mod m_i
+
+// works in O(k * log(M)) time
+
+// sources:
+// cp-algorithms.com (https://cp-algorithms.com/algebra/chinese-remainder-theorem.html)
+
+// -------------------------------------------------------------------------------------------
+
 // Modint
 
 // it is the struct that treats the modular arithmetic
@@ -14,14 +39,14 @@
 // atcoder library (https://github.com/atcoder/ac-library/blob/master/atcoder/modint.hpp)
 // the-tourist/algo (https://github.com/the-tourist/algo/blob/master/numeric/mint.cpp)
 
-// --------------------------------------------------------------------------------------
+// -------------------------------------------------------------------------------------------
 
 // Extended Euclidean
- 
+
 // for any 2 integers a and b, gcd(a, b) = g
 // we can express g as a linear combination of a and b (Bezout's Identity)
 // a * x + b * y = g
- 
+
 // finds the solution x and y for the above equation
 // x, y can be positive, negative or zero
 
@@ -87,7 +112,7 @@ public:
     static void set_mod(ll mod)
     {
         static_assert(dynamic, "set_mod can only be used with dynamic modint");
-        get_mod_ref() = (int) mod;
+        get_mod_ref() = (int)mod;
     }
 
     static mint raw(int v)
@@ -250,9 +275,9 @@ public:
     // take mod m on both sides
     // a * x = 1 (mod m)
 
-    // find x, y using extended euclidean 
+    // find x, y using extended euclidean
     // then make x positive and take mod
-    // that gives us the modular inverse of a wrt m 
+    // that gives us the modular inverse of a wrt m
 
     // works in O(log(min(a, m))) time
 
@@ -300,9 +325,8 @@ public:
 using modint998244353 = modint<998244353>;
 using modint1000000007 = modint<1000000007>;
 
-// --------------- SET THIS ---------------
-
-using mint = 
+using mint_m = modint<-1, true>;
+using mint_M = modint<-1, true>;
 
 // vector<mint> fact, inv_fact;
 
@@ -329,3 +353,34 @@ using mint =
 
 //     return fact[n] * inv_fact[n - k] * inv_fact[k];
 // }
+
+struct Congruence
+{
+    ll a, m;
+};
+
+mint_M chinese_remainder_theorem(vector<Congruence> const& congruences)
+{
+    ll M = 1;
+
+    for (auto const& congruence : congruences)
+    {
+        M *= congruence.m;
+    }
+
+    mint_M::set_mod(M);
+    mint_M solution = 0;
+
+    for (auto &congruence : congruences)
+    {
+        mint_m::set_mod(congruence.m);
+
+        ll a_i = congruence.a;
+        ll M_i = M / congruence.m;
+        mint_m N_i = mint_m(M_i).inv();
+
+        solution += a_i * M_i * N_i;
+    }
+
+    return solution;
+}

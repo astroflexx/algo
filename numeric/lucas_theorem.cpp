@@ -14,11 +14,48 @@
 
 // MAKE SURE TO CALL precompute_factorials(p - 1)
 
-// -------------------------------------------------------------------------------------------
+// takes O(p) time to precompute factorials
+// takes O(log_p(n)) time to compute nCr mod p
+
+// ------------------------------------------------------------------------------------------
 
 // Modint
 
-// it is the struct that treats the modular arithmetic.
+// it is the struct that treats the modular arithmetic
+// introduces a new type `mint` that can be used with all modular operations
+// like add, subtract, multiply, divide (inverse), pow, with mod.
+
+// there are 2 types of modint:
+// static (when we know the mod value) and dynamic (when we need to read the mod value)
+
+// MAKE SURE TO SET using mint = ...
+// MAKE SURE TO CALL precompute_factorials(ll n) IF YOU WANT IT
+
+// sources:
+// atcoder library (https://github.com/atcoder/ac-library/blob/master/atcoder/modint.hpp)
+// the-tourist/algo (https://github.com/the-tourist/algo/blob/master/numeric/mint.cpp)
+
+// -------------------------------------------------------------------------------------------
+
+// Extended Euclidean
+ 
+// for any 2 integers a and b, gcd(a, b) = g
+// we can express g as a linear combination of a and b (Bezout's Identity)
+// a * x + b * y = g
+ 
+// finds the solution x and y for the above equation
+// x, y can be positive, negative or zero
+
+// in euclidean algo to find gcd, at the end a = g and b = 0
+// so then x = 1, y = 0
+
+// backtrack from there till original a, b to get x, y
+// read the source for more info
+
+// works in O(log(min(a, b))) time
+
+// sources:
+// cp-algorithms.com (https://cp-algorithms.com/algebra/extended-euclid-algorithm.html)
 
 tuple<ll, ll, ll> extended_euclidean(ll a, ll b)
 {
@@ -182,6 +219,24 @@ public:
         return mint() - *this;
     }
 
+    // Modular/Binary Exponentiation
+
+    // finds x^n where n is a very big number, modulo m
+
+    // express n in binary (base 2)
+    // iterate thru the bits of n, curr bit be i
+    // if the bit is set, multiply x^(2^i) with ans
+
+    // like 3^13 = 3^8 * 3^4 * 3^1
+
+    // we can compute x^(2^i) as we iterate thru the bits
+    // like 3^1 * 3^1 = 3^2, 3^2 * 3^2 = 3^4, and so on
+
+    // works in O(log(n)) time
+
+    // sources:
+    // https://cp-algorithms.com/algebra/binary-exp.html
+
     mint pow(ll n) const
     {
         assert(n >= 0);
@@ -200,6 +255,30 @@ public:
 
         return r;
     }
+
+    // Modular Inverse
+
+    // given 2 integers a and m
+    // a_inv is the modular inverse of a wrt m
+    // a * a_inv = 0 (mod m)
+    // (a * a_inv) % m = 0
+
+    // modular inverse for any 2 integers (a, m) will exist only
+    // if gcd(a, m) = 1, i.e., they must be coprime
+
+    // since their gcd is 1
+    // a * x + m * y = 1
+    // take mod m on both sides
+    // a * x = 1 (mod m)
+
+    // find x, y using extended euclidean 
+    // then make x positive and take mod
+    // that gives us the modular inverse of a wrt m 
+
+    // works in O(log(min(a, m))) time
+
+    // sources:
+    // https://cp-algorithms.com/algebra/module-inverse.html
 
     mint inv() const
     {
@@ -242,8 +321,7 @@ public:
 using modint998244353 = modint<998244353>;
 using modint1000000007 = modint<1000000007>;
 
-// --------------- SET THIS ---------------
-// MAKE SURE TO CALL precompute_factorials(ll n) IF YOU WANT IT
+// --------------- SET THIS --------------- 
 
 using mint = 
 
