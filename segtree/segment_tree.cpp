@@ -14,6 +14,10 @@
 
 // replace it with your definition of Info and op
 
+// sources:
+// atcoder library (https://github.com/atcoder/ac-library/blob/master/atcoder/segtree.hpp)
+// the-tourist/algo (https://github.com/the-tourist/algo/tree/master/segtree)
+
 // define the info to be stored in a node
 // must have a default constructor for Info
 
