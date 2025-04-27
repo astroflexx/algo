@@ -17,6 +17,8 @@
 // sources:
 // cp-algorithms.com (https://cp-algorithms.com/string/string-hashing.html)
 
+// --------------------------------------------------------------------------------------
+
 // Modint
 
 // it is the struct that treats the modular arithmetic
