@@ -1,6 +1,6 @@
 // Z-function
 
-// Given a string s, compute the z-function for the string
+// given a string s, compute the z-function for the string
 // z[i] = how many characters starting from index i match the prefix of string s
 // z[0] = 0, it is generally not well defined (doesn't matter what you put there)
 
