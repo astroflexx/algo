@@ -57,13 +57,11 @@
 // sources:
 // cp-algorithms.com (https://cp-algorithms.com/algebra/extended-euclid-algorithm.html)
 
-tuple<ll, ll, ll> extended_euclidean(ll a, ll b)
-{
+tuple<ll, ll, ll> extended_euclidean(ll a, ll b) {
     ll x = 1, y = 0;
     ll x1 = 0, y1 = 1;
 
-    while (b > 0)
-    {
+    while (b > 0) {
         ll q = a / b;
         tie(x, x1) = make_tuple(x1, x - q * x1);
         tie(y, y1) = make_tuple(y1, y - q * y1);
@@ -73,14 +71,11 @@ tuple<ll, ll, ll> extended_euclidean(ll a, ll b)
     return {a, x, y};
 }
 
-template <int m, bool dynamic = false>
-struct modint
-{
-private:
+template <int m, bool dynamic = false> struct modint {
+  private:
     unsigned int _v;
 
-    static int &get_mod_ref()
-    {
+    static int &get_mod_ref() {
         static int mod = 998244353;
         return mod;
     }
@@ -90,29 +85,25 @@ private:
 
     static constexpr bool is_dynamic = dynamic;
 
-    static unsigned int umod()
-    {
-        if constexpr (is_dynamic)
-        {
+    static unsigned int umod() {
+        if constexpr (is_dynamic) {
             return umod_dynamic();
         }
 
         return umod_static();
     }
 
-public:
+  public:
     using mint = modint;
 
     static unsigned int mod() { return umod(); }
 
-    static void set_mod(ll mod)
-    {
+    static void set_mod(ll mod) {
         static_assert(dynamic, "set_mod can only be used with dynamic modint");
         get_mod_ref() = (int)mod;
     }
 
-    static mint raw(int v)
-    {
+    static mint raw(int v) {
         modint x;
         x._v = v;
         return x;
@@ -120,12 +111,10 @@ public:
 
     modint() : _v(0) {}
 
-    modint(ll v)
-    {
+    modint(ll v) {
         ll x = v % umod();
 
-        if (x < 0)
-        {
+        if (x < 0) {
             x += umod();
         }
 
@@ -134,22 +123,18 @@ public:
 
     unsigned int val() { return _v; }
 
-    mint &operator++()
-    {
+    mint &operator++() {
         _v++;
 
-        if (_v == umod())
-        {
+        if (_v == umod()) {
             _v = 0;
         }
 
         return *this;
     }
 
-    mint &operator--()
-    {
-        if (_v == 0)
-        {
+    mint &operator--() {
+        if (_v == 0) {
             _v = umod();
         }
 
@@ -157,46 +142,39 @@ public:
         return *this;
     }
 
-    mint operator++(int)
-    {
+    mint operator++(int) {
         mint result = *this;
         ++*this;
         return result;
     }
 
-    mint operator--(int)
-    {
+    mint operator--(int) {
         mint result = *this;
         --*this;
         return result;
     }
 
-    mint &operator+=(const mint &rhs)
-    {
+    mint &operator+=(const mint &rhs) {
         _v += rhs._v;
 
-        if (_v >= umod())
-        {
+        if (_v >= umod()) {
             _v -= umod();
         }
 
         return *this;
     }
 
-    mint &operator-=(const mint &rhs)
-    {
+    mint &operator-=(const mint &rhs) {
         _v -= rhs._v;
 
-        if (_v >= umod())
-        {
+        if (_v >= umod()) {
             _v += umod();
         }
 
         return *this;
     }
 
-    mint &operator*=(const mint &rhs)
-    {
+    mint &operator*=(const mint &rhs) {
         ll z = (ll)_v;
         z *= rhs._v;
         _v = (unsigned int)(z % umod());
@@ -204,20 +182,9 @@ public:
         return *this;
     }
 
-    mint &operator/=(const mint &rhs)
-    {
-        return *this = *this * rhs.inv();
-    }
-
-    mint operator+() const
-    {
-        return *this;
-    }
-
-    mint operator-() const
-    {
-        return mint() - *this;
-    }
+    mint &operator/=(const mint &rhs) { return *this = *this * rhs.inv(); }
+    mint operator+() const { return *this; }
+    mint operator-() const { return mint() - *this; }
 
     // Modular/Binary Exponentiation
 
@@ -237,15 +204,12 @@ public:
     // sources:
     // https://cp-algorithms.com/algebra/binary-exp.html
 
-    mint pow(ll n) const
-    {
+    mint pow(ll n) const {
         assert(n >= 0);
         mint x = *this, r = 1;
 
-        while (n > 0)
-        {
-            if (n & 1)
-            {
+        while (n > 0) {
+            if (n & 1) {
                 r *= x;
             }
 
@@ -280,42 +244,18 @@ public:
     // sources:
     // https://cp-algorithms.com/algebra/module-inverse.html
 
-    mint inv() const
-    {
+    mint inv() const {
         auto [g, x, _] = extended_euclidean(_v, umod());
         assert(g == 1);
         return mint(x);
     }
 
-    friend mint operator+(const mint &lhs, const mint &rhs)
-    {
-        return mint(lhs) += rhs;
-    }
-
-    friend mint operator-(const mint &lhs, const mint &rhs)
-    {
-        return mint(lhs) -= rhs;
-    }
-
-    friend mint operator*(const mint &lhs, const mint &rhs)
-    {
-        return mint(lhs) *= rhs;
-    }
-
-    friend mint operator/(const mint &lhs, const mint &rhs)
-    {
-        return mint(lhs) /= rhs;
-    }
-
-    friend bool operator==(const mint &lhs, const mint &rhs)
-    {
-        return lhs._v == rhs._v;
-    }
-
-    friend bool operator!=(const mint &lhs, const mint &rhs)
-    {
-        return lhs._v != rhs._v;
-    }
+    friend mint operator+(const mint &lhs, const mint &rhs) { return mint(lhs) += rhs; }
+    friend mint operator-(const mint &lhs, const mint &rhs) { return mint(lhs) -= rhs; }
+    friend mint operator*(const mint &lhs, const mint &rhs) { return mint(lhs) *= rhs; }
+    friend mint operator/(const mint &lhs, const mint &rhs) { return mint(lhs) /= rhs; }
+    friend bool operator==(const mint &lhs, const mint &rhs) { return lhs._v == rhs._v; }
+    friend bool operator!=(const mint &lhs, const mint &rhs) { return lhs._v != rhs._v; }
 };
 
 using modint998244353 = modint<998244353>;
@@ -323,50 +263,43 @@ using modint1000000007 = modint<1000000007>;
 
 // --------------- SET THIS ---------------
 
-using mint = ;
+using mint = modint1000000007;
 
-// vector<mint> fact, inv_fact;
+vector<mint> fact, inv_fact;
 
-// void precompute_factorials(ll n)
-// {
-//     fact.resize(n + 1);
-//     inv_fact.resize(n + 1);
+void precompute_factorials(ll n) {
+    fact.resize(n + 1);
+    inv_fact.resize(n + 1);
 
-//     fact[0] = fact[1] = inv_fact[0] = inv_fact[1] = 1;
+    fact[0] = fact[1] = inv_fact[0] = inv_fact[1] = 1;
 
-//     for (ll i = 1; i <= n; i++)
-//     {
-//         fact[i] = fact[i - 1] * i;
-//         inv_fact[i] = fact[i].inv();
-//     }
-// }
+    for (ll i = 1; i <= n; i++) {
+        fact[i] = fact[i - 1] * i;
+        inv_fact[i] = fact[i].inv();
+    }
+}
 
-// mint C(ll n, ll k)
-// {
-//     if (k < 0 || k > n)
-//     {
-//         return 0;
-//     }
+mint C(ll n, ll k) {
+    if (k < 0 || k > n) {
+        return 0;
+    }
 
-//     return fact[n] * inv_fact[n - k] * inv_fact[k];
-// }
+    return fact[n] * inv_fact[n - k] * inv_fact[k];
+}
 
-class StringHasher
-{
-private:
+class StringHasher {
+  private:
     static vector<mint> p1_pow, p2_pow;
     static bool powers_computed;
     static ll maxsize;
 
-    static void compute_powers(const ll p1, const ll p2)
-    {
+    static void compute_powers(const ll p1, const ll p2) {
         p1_pow.resize(maxsize + 1);
         p2_pow.resize(maxsize + 1);
 
         p1_pow[0] = p2_pow[0] = 1;
 
-        for (ll i = 1; i <= maxsize; i++)
-        {
+        for (ll i = 1; i <= maxsize; i++) {
             p1_pow[i] = (p1_pow[i - 1] * p1);
             p2_pow[i] = (p2_pow[i - 1] * p2);
         }
@@ -374,23 +307,19 @@ private:
         powers_computed = true;
     }
 
-public:
-    StringHasher(const ll p1 = 31, const ll p2 = 37)
-    {
-        if (!powers_computed)
-        {
+  public:
+    StringHasher(const ll p1 = 31, const ll p2 = 37) {
+        if (!powers_computed) {
             compute_powers(p1, p2);
         }
     }
 
-    pair<ll, ll> hash_string(string &s)
-    {
+    pair<ll, ll> hash_string(string &s) {
         ll n = (ll)s.length();
         mint hash_value1 = 0;
         mint hash_value2 = 0;
 
-        for (ll i = 0; i < n; i++)
-        {
+        for (ll i = 0; i < n; i++) {
             hash_value1 = (hash_value1 + (s[i] - 'a' + 1) * p1_pow[i]);
             hash_value2 = (hash_value2 + (s[i] - 'a' + 1) * p2_pow[i]);
         }
@@ -405,4 +334,4 @@ bool StringHasher::powers_computed = false;
 
 // --------------- SET THIS ---------------
 
-ll StringHasher::maxsize = ;
+ll StringHasher::maxsize = $1;

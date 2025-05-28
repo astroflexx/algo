@@ -23,7 +23,7 @@ for subdir in os.walk("."):
         with open(path, "r") as f:
             snippet = {
                 "prefix": name,
-                "body": ["$0"] + [line.rstrip() for line in f.readlines()],
+                "body": [line.rstrip() for line in f.readlines()],
                 "description": name,
             }
             snippets[name] = snippet

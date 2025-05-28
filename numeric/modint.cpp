@@ -17,11 +17,11 @@
 // --------------------------------------------------------------------------------------
 
 // Extended Euclidean
- 
+
 // for any 2 integers a and b, gcd(a, b) = g
 // we can express g as a linear combination of a and b (Bezout's Identity)
 // a * x + b * y = g
- 
+
 // finds the solution x and y for the above equation
 // x, y can be positive, negative or zero
 
@@ -36,13 +36,11 @@
 // sources:
 // cp-algorithms.com (https://cp-algorithms.com/algebra/extended-euclid-algorithm.html)
 
-tuple<ll, ll, ll> extended_euclidean(ll a, ll b)
-{
+tuple<ll, ll, ll> extended_euclidean(ll a, ll b) {
     ll x = 1, y = 0;
     ll x1 = 0, y1 = 1;
 
-    while (b > 0)
-    {
+    while (b > 0) {
         ll q = a / b;
         tie(x, x1) = make_tuple(x1, x - q * x1);
         tie(y, y1) = make_tuple(y1, y - q * y1);
@@ -52,14 +50,11 @@ tuple<ll, ll, ll> extended_euclidean(ll a, ll b)
     return {a, x, y};
 }
 
-template <int m, bool dynamic = false>
-struct modint
-{
-private:
+template <int m, bool dynamic = false> struct modint {
+  private:
     unsigned int _v;
 
-    static int &get_mod_ref()
-    {
+    static int &get_mod_ref() {
         static int mod = 998244353;
         return mod;
     }
@@ -69,29 +64,25 @@ private:
 
     static constexpr bool is_dynamic = dynamic;
 
-    static unsigned int umod()
-    {
-        if constexpr (is_dynamic)
-        {
+    static unsigned int umod() {
+        if constexpr (is_dynamic) {
             return umod_dynamic();
         }
 
         return umod_static();
     }
 
-public:
+  public:
     using mint = modint;
 
     static unsigned int mod() { return umod(); }
 
-    static void set_mod(ll mod)
-    {
+    static void set_mod(ll mod) {
         static_assert(dynamic, "set_mod can only be used with dynamic modint");
-        get_mod_ref() = (int) mod;
+        get_mod_ref() = (int)mod;
     }
 
-    static mint raw(int v)
-    {
+    static mint raw(int v) {
         modint x;
         x._v = v;
         return x;
@@ -99,12 +90,10 @@ public:
 
     modint() : _v(0) {}
 
-    modint(ll v)
-    {
+    modint(ll v) {
         ll x = v % umod();
 
-        if (x < 0)
-        {
+        if (x < 0) {
             x += umod();
         }
 
@@ -113,22 +102,18 @@ public:
 
     unsigned int val() { return _v; }
 
-    mint &operator++()
-    {
+    mint &operator++() {
         _v++;
 
-        if (_v == umod())
-        {
+        if (_v == umod()) {
             _v = 0;
         }
 
         return *this;
     }
 
-    mint &operator--()
-    {
-        if (_v == 0)
-        {
+    mint &operator--() {
+        if (_v == 0) {
             _v = umod();
         }
 
@@ -136,46 +121,39 @@ public:
         return *this;
     }
 
-    mint operator++(int)
-    {
+    mint operator++(int) {
         mint result = *this;
         ++*this;
         return result;
     }
 
-    mint operator--(int)
-    {
+    mint operator--(int) {
         mint result = *this;
         --*this;
         return result;
     }
 
-    mint &operator+=(const mint &rhs)
-    {
+    mint &operator+=(const mint &rhs) {
         _v += rhs._v;
 
-        if (_v >= umod())
-        {
+        if (_v >= umod()) {
             _v -= umod();
         }
 
         return *this;
     }
 
-    mint &operator-=(const mint &rhs)
-    {
+    mint &operator-=(const mint &rhs) {
         _v -= rhs._v;
 
-        if (_v >= umod())
-        {
+        if (_v >= umod()) {
             _v += umod();
         }
 
         return *this;
     }
 
-    mint &operator*=(const mint &rhs)
-    {
+    mint &operator*=(const mint &rhs) {
         ll z = (ll)_v;
         z *= rhs._v;
         _v = (unsigned int)(z % umod());
@@ -183,20 +161,9 @@ public:
         return *this;
     }
 
-    mint &operator/=(const mint &rhs)
-    {
-        return *this = *this * rhs.inv();
-    }
-
-    mint operator+() const
-    {
-        return *this;
-    }
-
-    mint operator-() const
-    {
-        return mint() - *this;
-    }
+    mint &operator/=(const mint &rhs) { return *this = *this * rhs.inv(); }
+    mint operator+() const { return *this; }
+    mint operator-() const { return mint() - *this; }
 
     // Modular/Binary Exponentiation
 
@@ -216,15 +183,12 @@ public:
     // sources:
     // https://cp-algorithms.com/algebra/binary-exp.html
 
-    mint pow(ll n) const
-    {
+    mint pow(ll n) const {
         assert(n >= 0);
         mint x = *this, r = 1;
 
-        while (n > 0)
-        {
-            if (n & 1)
-            {
+        while (n > 0) {
+            if (n & 1) {
                 r *= x;
             }
 
@@ -250,51 +214,27 @@ public:
     // take mod m on both sides
     // a * x = 1 (mod m)
 
-    // find x, y using extended euclidean 
+    // find x, y using extended euclidean
     // then make x positive and take mod
-    // that gives us the modular inverse of a wrt m 
+    // that gives us the modular inverse of a wrt m
 
     // works in O(log(min(a, m))) time
 
     // sources:
     // https://cp-algorithms.com/algebra/module-inverse.html
 
-    mint inv() const
-    {
+    mint inv() const {
         auto [g, x, _] = extended_euclidean(_v, umod());
         assert(g == 1);
         return mint(x);
     }
 
-    friend mint operator+(const mint &lhs, const mint &rhs)
-    {
-        return mint(lhs) += rhs;
-    }
-
-    friend mint operator-(const mint &lhs, const mint &rhs)
-    {
-        return mint(lhs) -= rhs;
-    }
-
-    friend mint operator*(const mint &lhs, const mint &rhs)
-    {
-        return mint(lhs) *= rhs;
-    }
-
-    friend mint operator/(const mint &lhs, const mint &rhs)
-    {
-        return mint(lhs) /= rhs;
-    }
-
-    friend bool operator==(const mint &lhs, const mint &rhs)
-    {
-        return lhs._v == rhs._v;
-    }
-
-    friend bool operator!=(const mint &lhs, const mint &rhs)
-    {
-        return lhs._v != rhs._v;
-    }
+    friend mint operator+(const mint &lhs, const mint &rhs) { return mint(lhs) += rhs; }
+    friend mint operator-(const mint &lhs, const mint &rhs) { return mint(lhs) -= rhs; }
+    friend mint operator*(const mint &lhs, const mint &rhs) { return mint(lhs) *= rhs; }
+    friend mint operator/(const mint &lhs, const mint &rhs) { return mint(lhs) /= rhs; }
+    friend bool operator==(const mint &lhs, const mint &rhs) { return lhs._v == rhs._v; }
+    friend bool operator!=(const mint &lhs, const mint &rhs) { return lhs._v != rhs._v; }
 };
 
 using modint998244353 = modint<998244353>;
@@ -302,28 +242,24 @@ using modint1000000007 = modint<1000000007>;
 
 // --------------- SET THIS ---------------
 
-using mint = 
+using mint = $1;
 
-// vector<mint> fact, inv_fact;
+// vector<mint> fact, inv_fact; $2
 
-// void precompute_factorials(ll n)
-// {
+// void precompute_factorials(ll n) {
 //     fact.resize(n + 1);
 //     inv_fact.resize(n + 1);
 
 //     fact[0] = fact[1] = inv_fact[0] = inv_fact[1] = 1;
 
-//     for (ll i = 1; i <= n; i++)
-//     {
+//     for (ll i = 1; i <= n; i++) {
 //         fact[i] = fact[i - 1] * i;
 //         inv_fact[i] = fact[i].inv();
 //     }
 // }
 
-// mint C(ll n, ll k)
-// {
-//     if (k < 0 || k > n)
-//     {
+// mint C(ll n, ll k) {
+//     if (k < 0 || k > n) {
 //         return 0;
 //     }
 

@@ -11,13 +11,11 @@ using ordered_multiset = tree<pair<T, U>, null_type, less<pair<T, U>>, rb_tree_t
 
 using ll = long long;
 
-void solve()
-{
-    
+void solve() {
+    $0
 }
 
-int main()
-{
+int main() {
     ios_base::sync_with_stdio(false);
     cin.tie(nullptr);
 
@@ -27,8 +25,7 @@ int main()
     ll t = 1;
     cin >> t;
 
-    while (t--)
-    {
+    while (t--) {
         solve();
     }
 

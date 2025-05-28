@@ -13,7 +13,7 @@
 
 // eg: if you pass a 1-based indexed array
 // the tree will be 2-based indexed, with T[0] = T[1] = 0
-// thats fine, no problem, you can query and update normally
+// thats okay, no problem, you can query and update normally
 
 // g(i) = i - (i & (-i))
 // h(i) = i + (i & (-i))
@@ -21,22 +21,20 @@
 // sources:
 // cp-algorithms.com (https://cp-algorithms.com/data_structures/fenwick.html)
 
-struct FenwickTree
-{
+struct FenwickTree {
     vector<ll> bit;
     ll n;
 
-    FenwickTree(ll N)
-    {
+    FenwickTree(ll N) {
         this->n = N + 1;
         bit.assign(N + 1, 0LL);
     }
 
-    FenwickTree(vector<ll> &a) : FenwickTree((ll) a.size())
-    {
-        for (ll i = 0; i < (ll) a.size(); i++)
-        {
-            add(i, a[i]);
+    FenwickTree(vector<ll> &a) : FenwickTree((ll)a.size()) {
+        for (ll i = 0; i < (ll)a.size(); i++) {
+            bit[i + 1] += a[i];
+            ll r = i + 1 + ((i + 1) & (-(i + 1)));
+            if (r < n) bit[r] += bit[i + 1];
         }
     }
 
@@ -45,32 +43,25 @@ struct FenwickTree
     // then jump to [g(g(i) - 1), g(i) - 1], add its sum and so on...
     // as long as idx > 0 (because our full array is [1, n])
 
-    ll sum(ll idx)
-    {
+    ll sum(ll idx) {
         ll ret = 0;
 
-        for (++idx; idx > 0; idx -= idx & -idx)
-        {
+        for (++idx; idx > 0; idx -= idx & -idx) {
             ret += bit[idx];
         }
 
         return ret;
     }
 
-    ll sum(ll l, ll r)
-    {
-        return sum(r) - sum(l - 1);
-    }
+    ll sum(ll l, ll r) { return sum(r) - sum(l - 1); }
 
     // add delta to the first range containing i
     // which is [g(i), i]
-    // the next range's right border containing i is given by h(i) 
+    // the next range's right border containing i is given by h(i)
     // keep adding as long as i < n (because n = N + 1 so its like i <= N)
 
-    void add(ll idx, ll delta)
-    {
-        for (++idx; idx < n; idx += idx & -idx)
-        {
+    void add(ll idx, ll delta) {
+        for (++idx; idx < n; idx += idx & -idx) {
             bit[idx] += delta;
         }
     }
