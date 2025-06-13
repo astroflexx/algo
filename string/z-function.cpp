@@ -14,6 +14,9 @@
 
 // at the end, update the z-box if necessary
 
+// sources:
+// cp-algorithms.com (https://cp-algorithms.com/string/z-function.html)
+
 vector<ll> z_function(string s) {
     ll n = (ll)s.length();
 
