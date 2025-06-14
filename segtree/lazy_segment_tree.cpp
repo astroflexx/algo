@@ -1,9 +1,14 @@
-// Segment Tree
+// Lazy Segment Tree
 
-// a data structure for range queries and point updates
+// a data structure for range updates and range queries
 
-// a tree where every node corresponds to a range/segment
-// and we store information about the segment in the node
+// lazy propagation
+// for every update, just marks the update to be done (pending) 
+// in the corresponding segment nodes
+
+// only when another query/update comes to a lower child segment
+// we will push the update to the child segments from the parent
+// and only update whenever necessary
 
 // building takes O(n) time
 // updating takes O(log(n)) time
@@ -16,10 +21,10 @@
 // the-tourist/algo (https://github.com/the-tourist/algo/tree/master/segtree)
 
 template <typename T, T op(T, T), T e()>
-class SegmentTree {
+class LazySegmentTree {
   private:
     ll n;
-    vector<T> tree;
+    vector<T> tree, lazy;
 
     void build(vector<ll> &a, ll u, ll l, ll r) {
         if (l == r) {
@@ -32,16 +37,26 @@ class SegmentTree {
         }
     }
 
-    void update(ll u, ll idx, ll l, ll r, ll val) {
-        if (l == r) {
-            tree[u] = T(val);
+    void push(ll u) {
+        tree[2 * u] += lazy[u];
+        lazy[2 * u] += lazy[u];
+        tree[2 * u + 1] += lazy[u];
+        lazy[2 * u + 1] += lazy[u];
+        lazy[u] = 0;
+    }
+
+    void update(ll u, ll ql, ll qr, ll l, ll r, ll addend) {
+        if (ql > qr) {
+            return;
+        }
+        if (ql == l && qr == r) {
+            tree[u] += addend;
+            lazy[u] += addend;
         } else {
+            push(u);
             ll m = (l + r) / 2;
-            if (idx <= m) {
-                update(2 * u, idx, l, m, val);
-            } else {
-                update(2 * u + 1, idx, m + 1, r, val);
-            }
+            update(2 * u, ql, min(qr, m), l, m, addend);
+            update(2 * u + 1, max(ql, m + 1), qr, m + 1, r, addend);
             tree[u] = op(tree[2 * u], tree[2 * u + 1]);
         }
     }
@@ -53,28 +68,32 @@ class SegmentTree {
         if (ql == l && qr == r) {
             return tree[u];
         }
+        push(u);
         ll m = (l + r) / 2;
         return op(query(2 * u, ql, min(qr, m), l, m), query(2 * u + 1, max(ql, m + 1), qr, m + 1, r));
     }
 
   public:
-    SegmentTree(ll sz) {
+    LazySegmentTree(ll sz) {
         this->n = sz;
         tree.resize(4 * n, e());
+        lazy.resize(4 * n, 0);
     }
 
-    SegmentTree(ll sz, T filler) {
+    LazySegmentTree(ll sz, T filler) {
         this->n = sz;
         tree.resize(4 * n, filler);
+        lazy.resize(4 * n, 0);
     }
 
-    SegmentTree(vector<ll> &a) {
+    LazySegmentTree(vector<ll> &a) {
         this->n = (ll)a.size();
         tree.resize(4 * n, e());
+        lazy.resize(4 * n, 0);
         build(a, 1, 0, n - 1);
     }
 
-    void update(ll idx, ll val) { update(1, idx, 0, n - 1, val); }
+    void update(ll l, ll r, ll addend) { update(1, l, r, 0, n - 1, addend); }
     T query(ll l, ll r) { return query(1, l, r, 0, n - 1); }
 };
 
