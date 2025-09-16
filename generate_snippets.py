@@ -36,5 +36,5 @@ with open("cpp.json", "w") as f:
 print("done", file=sys.stderr)
 
 shutil.copyfile(
-    "cpp.json", r"C:\Users\venka\AppData\Roaming\Code\User\snippets\cpp.json"
+    "cpp.json", os.path.expanduser("~/.config/Code/User/snippets/cpp.json")
 )
