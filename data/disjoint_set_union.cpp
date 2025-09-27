@@ -88,7 +88,9 @@ class DSU {
         vector<ll> index(n);
         ll idx = 0;
 
-        for (ll i = 1; i < n; i++) {
+        // change this to 0 if you are using 0-based indexed nodes
+
+        for (ll i = 1$2; i < n; i++) {
             if (find_rep(i) == i) {
                 index[i] = idx++;
             }
@@ -96,7 +98,9 @@ class DSU {
 
         vector<vector<ll>> result(idx);
 
-        for (ll i = 1; i < n; i++) {
+        // change this to 0 if you are using 0-based indexed nodes
+
+        for (ll i = 1$3; i < n; i++) {
             ll rep = find_rep(i);
             result[index[rep]].push_back(i);
         }
