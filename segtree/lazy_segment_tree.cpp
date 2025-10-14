@@ -3,7 +3,7 @@
 // a data structure for range updates and range queries
 
 // lazy propagation
-// for every update, just marks the update to be done (pending) 
+// for every update, just marks the update to be done (pending)
 // in the corresponding segment nodes
 
 // only when another query/update comes to a lower child segment
@@ -20,15 +20,29 @@
 // atcoder library (https://github.com/atcoder/ac-library/blob/master/atcoder/segtree.hpp)
 // the-tourist/algo (https://github.com/the-tourist/algo/tree/master/segtree)
 
-template <typename T, T op(T, T), T e()>
+struct Node {
+    ll val;
+
+    Node(ll val_) : val(val_) {}
+};
+
 class LazySegmentTree {
   private:
     ll n;
-    vector<T> tree, lazy;
+    vector<Node> tree;
+    vector<ll> lazy;
+
+    Node op(Node a, Node b) { 
+        $1
+    }
+
+    Node e() {  
+        $2
+    }
 
     void build(vector<ll> &a, ll u, ll l, ll r) {
         if (l == r) {
-            tree[u] = T(a[l]);
+            tree[u] = a[l];
         } else {
             ll m = (l + r) / 2;
             build(a, 2 * u, l, m);
@@ -38,9 +52,9 @@ class LazySegmentTree {
     }
 
     void push(ll u) {
-        tree[2 * u] += lazy[u];
+        tree[2 * u].val += lazy[u];
         lazy[2 * u] += lazy[u];
-        tree[2 * u + 1] += lazy[u];
+        tree[2 * u + 1].val += lazy[u];
         lazy[2 * u + 1] += lazy[u];
         lazy[u] = 0;
     }
@@ -50,7 +64,7 @@ class LazySegmentTree {
             return;
         }
         if (ql == l && qr == r) {
-            tree[u] += addend;
+            tree[u].val += addend;
             lazy[u] += addend;
         } else {
             push(u);
@@ -61,7 +75,7 @@ class LazySegmentTree {
         }
     }
 
-    T query(ll u, ll ql, ll qr, ll l, ll r) {
+    Node query(ll u, ll ql, ll qr, ll l, ll r) {
         if (ql > qr) {
             return e();
         }
@@ -74,35 +88,20 @@ class LazySegmentTree {
     }
 
   public:
-    LazySegmentTree(ll sz) {
-        this->n = sz;
+    LazySegmentTree(ll n_) : n(n_) {
         tree.resize(4 * n, e());
         lazy.resize(4 * n, 0);
     }
 
-    LazySegmentTree(ll sz, T filler) {
-        this->n = sz;
-        tree.resize(4 * n, filler);
+    LazySegmentTree(ll n_, Node x) : n(n_) {
+        tree.resize(4 * n, x);
         lazy.resize(4 * n, 0);
     }
 
-    LazySegmentTree(vector<ll> &a) {
-        this->n = (ll)a.size();
-        tree.resize(4 * n, e());
-        lazy.resize(4 * n, 0);
-        build(a, 1, 0, n - 1);
-    }
+    LazySegmentTree(vector<ll> &a) : LazySegmentTree(ll(a.size())) { build(a, 1, 0, n - 1); }
 
     void update(ll l, ll r, ll addend) { update(1, l, r, 0, n - 1, addend); }
-    T query(ll l, ll r) { return query(1, l, r, 0, n - 1); }
+    Node query(ll l, ll r) { return query(1, l, r, 0, n - 1); }
+    Node get(ll idx) { return query(idx, idx); }
+    void set(ll idx, ll val) { update(idx, idx, val - get(idx).val); }
 };
-
-// type T, change ll to whatever type you're using
-
-ll op(ll a, ll b) {
-    $1
-}
-
-ll e() {
-    $2
-}

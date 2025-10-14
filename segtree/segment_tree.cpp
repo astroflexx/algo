@@ -15,15 +15,24 @@
 // atcoder library (https://github.com/atcoder/ac-library/blob/master/atcoder/segtree.hpp)
 // the-tourist/algo (https://github.com/the-tourist/algo/tree/master/segtree)
 
-template <typename T, T op(T, T), T e()>
+struct Node {
+    ll val;
+
+    Node(ll val_) : val(val_) {}
+};
+
 class SegmentTree {
   private:
     ll n;
-    vector<T> tree;
+    vector<Node> tree;
+
+    Node op(Node a, Node b) { return Node(min(a.val, b.val)); }
+
+    Node e() { return Node(LLONG_MAX); }
 
     void build(vector<ll> &a, ll u, ll l, ll r) {
         if (l == r) {
-            tree[u] = T(a[l]);
+            tree[u] = Node(a[l]);
         } else {
             ll m = (l + r) / 2;
             build(a, 2 * u, l, m);
@@ -34,7 +43,7 @@ class SegmentTree {
 
     void update(ll u, ll idx, ll l, ll r, ll val) {
         if (l == r) {
-            tree[u] = T(val);
+            tree[u] = Node(val);
         } else {
             ll m = (l + r) / 2;
             if (idx <= m) {
@@ -46,44 +55,19 @@ class SegmentTree {
         }
     }
 
-    T query(ll u, ll ql, ll qr, ll l, ll r) {
-        if (ql > qr) {
-            return e();
-        }
-        if (ql == l && qr == r) {
-            return tree[u];
-        }
+    Node query(ll u, ll ql, ll qr, ll l, ll r) {
+        if (ql > qr) return e();
+        if (ql == l && qr == r) return tree[u];
         ll m = (l + r) / 2;
         return op(query(2 * u, ql, min(qr, m), l, m), query(2 * u + 1, max(ql, m + 1), qr, m + 1, r));
     }
 
   public:
-    SegmentTree(ll sz) {
-        this->n = sz;
-        tree.resize(4 * n, e());
-    }
-
-    SegmentTree(ll sz, T filler) {
-        this->n = sz;
-        tree.resize(4 * n, filler);
-    }
-
-    SegmentTree(vector<ll> &a) {
-        this->n = (ll)a.size();
-        tree.resize(4 * n, e());
-        build(a, 1, 0, n - 1);
-    }
-
+    SegmentTree(ll n_) : n(n_) { tree.resize(4 * n, e()); }
+    SegmentTree(ll n_, Node x) : n(n_) { tree.resize(4 * n, x); }
+    SegmentTree(vector<ll> &a) : SegmentTree(ll(a.size())) { build(a, 1, 0, n - 1); }
     void update(ll idx, ll val) { update(1, idx, 0, n - 1, val); }
-    T query(ll l, ll r) { return query(1, l, r, 0, n - 1); }
+    Node query(ll l, ll r) { return query(1, l, r, 0, n - 1); }
+    Node get(ll idx) { return query(idx, idx); }
+    void set(ll idx, ll val) { update(idx, val); }
 };
-
-// type T, change ll to whatever type you're using
-
-ll op(ll a, ll b) {
-    $1
-}
-
-ll e() {
-    $2
-}
