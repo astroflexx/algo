@@ -1,22 +1,21 @@
 // Segment Tree
 
-// a data structure for range queries and point updates
+// A data structure for range queries and point updates
 
-// a tree where every node corresponds to a range/segment
+// A tree where every node corresponds to a range / segment
 // and we store information about the segment in the node
 
-// building takes O(n) time
-// updating takes O(log(n)) time
-// querying takes O(log(n)) time
+// The binary operation * must be composable, i.e., associative.
+// [l, r] should be makeable from [l1, r1], [l2, r2], ..., [lk, rk]
 
-// define op() the binary operation and e() the identity element of the tree
+// Define op() the binary operation and e() the identity element of the tree
 
-// sources:
-// atcoder library (https://github.com/atcoder/ac-library/blob/master/atcoder/segtree.hpp)
+// Sources:
+// AtCoder Library (https://github.com/atcoder/ac-library/blob/master/atcoder/segtree.hpp)
 // the-tourist/algo (https://github.com/the-tourist/algo/tree/master/segtree)
 
 struct Node {
-    ll val;
+    ll val;$1
 
     Node(ll val_) : val(val_) {}
 };
@@ -24,19 +23,24 @@ struct Node {
 class SegmentTree {
   private:
     ll n;
+    vector<ll> a;
     vector<Node> tree;
 
-    Node op(Node a, Node b) { return Node(min(a.val, b.val)); }
+    Node op(Node a, Node b) {
+        return Node(min(a.val, b.val));$2
+    }
 
-    Node e() { return Node(LLONG_MAX); }
+    Node e() {
+        return Node(LLONG_MAX);
+    }
 
-    void build(vector<ll> &a, ll u, ll l, ll r) {
+    void build(ll u, ll l, ll r) {
         if (l == r) {
             tree[u] = Node(a[l]);
         } else {
             ll m = (l + r) / 2;
-            build(a, 2 * u, l, m);
-            build(a, 2 * u + 1, m + 1, r);
+            build(2 * u, l, m);
+            build(2 * u + 1, m + 1, r);
             tree[u] = op(tree[2 * u], tree[2 * u + 1]);
         }
     }
@@ -56,18 +60,45 @@ class SegmentTree {
     }
 
     Node query(ll u, ll ql, ll qr, ll l, ll r) {
-        if (ql > qr) return e();
-        if (ql == l && qr == r) return tree[u];
+        if (ql > qr) {
+            return e();
+        }
+        if (ql == l && qr == r) {
+            return tree[u];
+        }
         ll m = (l + r) / 2;
         return op(query(2 * u, ql, min(qr, m), l, m), query(2 * u + 1, max(ql, m + 1), qr, m + 1, r));
     }
 
   public:
-    SegmentTree(ll n_) : n(n_) { tree.resize(4 * n, e()); }
-    SegmentTree(ll n_, Node x) : n(n_) { tree.resize(4 * n, x); }
-    SegmentTree(vector<ll> &a) : SegmentTree(ll(a.size())) { build(a, 1, 0, n - 1); }
-    void update(ll idx, ll val) { update(1, idx, 0, n - 1, val); }
-    Node query(ll l, ll r) { return query(1, l, r, 0, n - 1); }
-    Node get(ll idx) { return query(idx, idx); }
-    void set(ll idx, ll val) { update(idx, val); }
+    SegmentTree(ll n_) : n(n_) {
+        tree.resize(4 * n, e());
+        a.resize(n, e().val);
+    }
+
+    SegmentTree(ll n_, ll x) : n(n_) {
+        tree.resize(4 * n, Node(x));
+        a.resize(n, x);
+    }
+
+    SegmentTree(const vector<ll> &a_) {
+        ll n_ = ll(a_.size());
+        this->n = n_;
+        a = a_;
+        tree.resize(4 * n, e());
+        build(1, 0, n - 1);
+    }
+
+    void update(ll idx, ll val) {
+        a[idx] = val;
+        update(1, idx, 0, n - 1, val);
+    }
+
+    Node query(ll l, ll r) {
+        return query(1, l, r, 0, n - 1);
+    }
+
+    Node get(ll idx) {
+        return a[idx];
+    }
 };

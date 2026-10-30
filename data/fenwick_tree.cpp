@@ -1,68 +1,84 @@
-// Fenwick Tree (binary indexed tree)
+// Fenwick Tree (Binary Indexed Tree)
 
-// a data structure for range sum queries and point updates
-// lighter than a Segment Tree, only uses O(n) memory
+// A data structure for range sum queries and point updates
+// Lighter than a Segment Tree, only uses O(n) memory
 
-// stores data in an array T[0 ... N - 1]
-// where T[i] stores the sum for the range [g(i), i]
+// Define 2 functions: g(i) and h(i)
 
-// follows 1-based indexing for the tree [1, N]
-// if a 0-based indexed array is passed as input
+// g(i) = turn off all trailing 1 bits of i
+// g(i) is the left endpoint (l) for i
+// i = 10100111, g(i) = 10100000, [g(i), i] is a range
 
-// the indexing will shift by 1 of the indexing of the passed input array
+// h(i) = set the LSB of i
+// h(i) is the next right endpoint (r) that contains i in its range
+// basically the opposite of g(i), we keep on setting the LSB of i
 
-// eg: if you pass a 1-based indexed array
-// the tree will be 2-based indexed, with T[0] = T[1] = 0
-// thats okay, no problem, you can query and update normally
+// i = 10100111, h(i) = 10101111, its l would be g(h(i)) = 10100000
+// so you see [g(h(i)), h(i)] = [10100000, 10101111] contains i = 10100111
+// next one would be h(h(i)) = 10111111 and so on, that contains i
 
-// g(i) = i - (i & (-i))
-// h(i) = i + (i & (-i))
+// so atmost log(n) such jumps (powers of 2 trick)
 
-// sources:
+// 0-indexed, so if you're using a 1-indexed array, make sure a[0] = identity element
+// identity element = 0 for sum, inf / -inf for min / max
+
+// Sources:
 // cp-algorithms.com (https://cp-algorithms.com/data_structures/fenwick.html)
 
-struct FenwickTree {
+class FenwickTree {
+  private:
+    vector<ll> a;
     vector<ll> bit;
     ll n;
 
-    FenwickTree(ll N) {
-        this->n = N + 1;
-        bit.assign(N + 1, 0LL);
+  public:
+    FenwickTree(ll n_) : n(n_) {
+        bit.resize(n, 0);
+        a.resize(n, 0);
     }
 
-    FenwickTree(vector<ll> &a) : FenwickTree((ll)a.size()) {
-        for (ll i = 0; i < (ll)a.size(); i++) {
-            bit[i + 1] += a[i];
-            ll r = i + 1 + ((i + 1) & (-(i + 1)));
-            if (r < n) bit[r] += bit[i + 1];
+    FenwickTree(const vector<ll> &a_) {
+        a = a_;
+        ll n_ = ll(a.size());
+        this->n = n_;
+        bit.resize(n, 0);
+        for (ll i = 0; i < n; i++) {
+            bit[i] += a[i];
+            ll r = (i | (i + 1));
+            if (r < n) {
+                bit[r] += bit[i];
+            }
         }
     }
 
-    // to answer sum queries
-    // start from the range [g(i), i], add its sum to result
-    // then jump to [g(g(i) - 1), g(i) - 1], add its sum and so on...
-    // as long as idx > 0 (because our full array is [1, n])
-
-    ll sum(ll idx) {
-        ll ret = 0;
-
-        for (++idx; idx > 0; idx -= idx & -idx) {
-            ret += bit[idx];
+    ll sum(ll r) {
+        ll res = 0;
+        while (r >= 0) {
+            res += bit[r];
+            r = (r & (r + 1)) - 1;
         }
-
-        return ret;
+        return res;
     }
 
-    ll sum(ll l, ll r) { return sum(r) - sum(l - 1); }
+    ll sum(ll l, ll r) {
+        ll res = sum(r) - sum(l - 1);
+        return res;
+    }
 
-    // add delta to the first range containing i
-    // which is [g(i), i]
-    // the next range's right border containing i is given by h(i)
-    // keep adding as long as i < n (because n = N + 1 so its like i <= N)
-
-    void add(ll idx, ll delta) {
-        for (++idx; idx < n; idx += idx & -idx) {
-            bit[idx] += delta;
+    void add(ll idx, ll addend) {
+        a[idx] += addend;
+        while (idx < n) {
+            bit[idx] += addend;
+            idx = (idx | (idx + 1));
         }
+    }
+
+    ll get(ll idx) {
+        return a[idx];
+    }
+
+    void set(ll idx, ll val) {
+        ll addend = val - get(idx);
+        add(idx, addend);
     }
 };

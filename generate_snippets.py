@@ -1,40 +1,47 @@
-# Generates cpp.json with snippets for VSCode
+#!/usr/bin/env python3
 
-import os
 import json
+import os
 import sys
-import shutil
+
+REPO = os.path.dirname(os.path.abspath(__file__))
+OUT = os.path.expanduser("~/.config/nvim/snippets/cpp.json")
+SKIP_DIRS = {".git", ".vscode"}
 
 snippets = {}
 
-for subdir in os.walk("."):
-    if subdir[0] == "." or ".git" in subdir[0]:
-        continue
-    for filename in subdir[2]:
-        name, extension = filename.split(".")
-        if extension != "cpp":
+for root, dirs, files in os.walk(REPO):
+    dirs[:] = [d for d in dirs if d not in SKIP_DIRS]
+    for filename in sorted(files):
+        if not filename.endswith(".cpp"):
             continue
 
-        if name in snippets:
-            print(f"error: duplicate snippet {name}", file=sys.stderr)
-            exit(0)
+        stem = filename[:-4]
+        if stem in snippets:
+            sys.exit(f"error: duplicate snippet name '{stem}'")
 
-        path = subdir[0] + "/" + filename
-        with open(path, "r") as f:
-            snippet = {
-                "prefix": name,
-                "body": [line.rstrip() for line in f.readlines()],
-                "description": name,
-            }
-            snippets[name] = snippet
+        with open(os.path.join(root, filename)) as f:
+            lines = [line.rstrip() for line in f]
 
-        print(f"generated snippet {name}", file=sys.stderr)
+        description = stem
+        for line in lines:
+            stripped = line.strip()
+            if stripped.startswith("//"):
+                description = stripped.lstrip("/").strip() or stem
+                break
+            if stripped:
+                break
 
-with open("cpp.json", "w") as f:
-    f.write(json.dumps(snippets, indent=4))
+        snippets[stem] = {
+            "prefix": stem,
+            "body": lines,
+            "description": description,
+        }
+        print(f"  {stem}", file=sys.stderr)
 
-print("done", file=sys.stderr)
+os.makedirs(os.path.dirname(OUT), exist_ok=True)
+with open(OUT, "w") as f:
+    json.dump(snippets, f, indent=4)
+    f.write("\n")
 
-shutil.copyfile(
-    "cpp.json", os.path.expanduser("~/.config/Code/User/snippets/cpp.json")
-)
+print(f"wrote {len(snippets)} snippets -> {OUT}", file=sys.stderr)
