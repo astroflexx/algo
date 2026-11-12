@@ -1,28 +1,18 @@
-// Prefix Hash
+// Ordered Prefix Hash
 
-// MAKE SURE TO SET MAXSIZE FOR THE STRINGS
+// Checks for ordered segment match
+// First, let m1 = 10^9 + 7 and m2 = 998244353
+// These are the 2 modulo for two hashes
 
-// BUILD 2 PREFIX HASHES FOR ANY STRING
-// USE 2 DIFFERENT PRIMES p1 = 31 AND p2 = 37
+// Generate 2 random bases base1 and base2
+// base1 in [2, m1 - 2]
+// base2 in [2, m2 - 2]
 
-// FOR FINDING HASH OF ANY SUBSTRING
-// TAKE (hash_using_p1, hash_using_p2) PAIR AS A HASH FOR COMPARISON
+// Prefix hash of [1, i] = a[1] * base^i + a[2] * base^(i - 1) + ... + a[i] ^ base^0 (mod m)
 
-// given a string, build a prefix hash
-// prefix_hash[i] gives the hash value of the prefix from [0, i]
+// So hash of [l, r] = pre_hash[r] - pre_hash[l - 1] * base^len
 
-// now using this, we can find the hash of any substring of the string
-// hash[i to j] = ((hash[0 to j] - hash[0 to i - 1]) * inverse of p^i) mod m
-
-// takes O(n) time to build the prefix hash
-// takes O(1) time to compute substring hash
-
-// 0-based indexing
-
-// sources:
-// cp-algorithms.com (https://cp-algorithms.com/string/string-hashing.html)
-
-// -------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------
 
 // Modint
 
@@ -76,7 +66,8 @@ tuple<ll, ll, ll> extended_euclidean(ll a, ll b) {
     return {a, x, y};
 }
 
-template <int m, bool dynamic = false> struct modint {
+template <int m, bool dynamic = false>
+struct modint {
   private:
     unsigned int _v;
 
@@ -85,8 +76,12 @@ template <int m, bool dynamic = false> struct modint {
         return mod;
     }
 
-    static constexpr unsigned int umod_static() { return m; }
-    static unsigned int umod_dynamic() { return get_mod_ref(); }
+    static constexpr unsigned int umod_static() {
+        return m;
+    }
+    static unsigned int umod_dynamic() {
+        return get_mod_ref();
+    }
 
     static constexpr bool is_dynamic = dynamic;
 
@@ -101,7 +96,9 @@ template <int m, bool dynamic = false> struct modint {
   public:
     using mint = modint;
 
-    static unsigned int mod() { return umod(); }
+    static unsigned int mod() {
+        return umod();
+    }
 
     static void set_mod(ll mod) {
         static_assert(dynamic, "set_mod can only be used with dynamic modint");
@@ -126,7 +123,9 @@ template <int m, bool dynamic = false> struct modint {
         _v = (unsigned int)x;
     }
 
-    unsigned int val() { return _v; }
+    unsigned int val() {
+        return _v;
+    }
 
     mint &operator++() {
         _v++;
@@ -187,9 +186,15 @@ template <int m, bool dynamic = false> struct modint {
         return *this;
     }
 
-    mint &operator/=(const mint &rhs) { return *this = *this * rhs.inv(); }
-    mint operator+() const { return *this; }
-    mint operator-() const { return mint() - *this; }
+    mint &operator/=(const mint &rhs) {
+        return *this = *this * rhs.inv();
+    }
+    mint operator+() const {
+        return *this;
+    }
+    mint operator-() const {
+        return mint() - *this;
+    }
 
     // Modular/Binary Exponentiation
 
@@ -255,12 +260,24 @@ template <int m, bool dynamic = false> struct modint {
         return mint(x);
     }
 
-    friend mint operator+(const mint &lhs, const mint &rhs) { return mint(lhs) += rhs; }
-    friend mint operator-(const mint &lhs, const mint &rhs) { return mint(lhs) -= rhs; }
-    friend mint operator*(const mint &lhs, const mint &rhs) { return mint(lhs) *= rhs; }
-    friend mint operator/(const mint &lhs, const mint &rhs) { return mint(lhs) /= rhs; }
-    friend bool operator==(const mint &lhs, const mint &rhs) { return lhs._v == rhs._v; }
-    friend bool operator!=(const mint &lhs, const mint &rhs) { return lhs._v != rhs._v; }
+    friend mint operator+(const mint &lhs, const mint &rhs) {
+        return mint(lhs) += rhs;
+    }
+    friend mint operator-(const mint &lhs, const mint &rhs) {
+        return mint(lhs) -= rhs;
+    }
+    friend mint operator*(const mint &lhs, const mint &rhs) {
+        return mint(lhs) *= rhs;
+    }
+    friend mint operator/(const mint &lhs, const mint &rhs) {
+        return mint(lhs) /= rhs;
+    }
+    friend bool operator==(const mint &lhs, const mint &rhs) {
+        return lhs._v == rhs._v;
+    }
+    friend bool operator!=(const mint &lhs, const mint &rhs) {
+        return lhs._v != rhs._v;
+    }
 };
 
 using modint998244353 = modint<998244353>;
@@ -268,93 +285,122 @@ using modint1000000007 = modint<1000000007>;
 
 // --------------- SET THIS ---------------
 
-using mint = modint1000000007;
+using mint = modint<-1, true>;
 
-vector<mint> fact, inv_fact;
+// vector<mint> fact, inv_fact;
 
-void precompute_factorials(ll n) {
-    fact.resize(n + 1);
-    inv_fact.resize(n + 1);
+// void precompute_factorials(ll n) {
+//     fact.resize(n + 1);
+//     inv_fact.resize(n + 1);
 
-    fact[0] = fact[1] = inv_fact[0] = inv_fact[1] = 1;
+//     fact[0] = fact[1] = inv_fact[0] = inv_fact[1] = 1;
 
-    for (ll i = 1; i <= n; i++) {
-        fact[i] = fact[i - 1] * i;
-        inv_fact[i] = fact[i].inv();
-    }
-}
+//     for (ll i = 1; i <= n; i++) {
+//         fact[i] = fact[i - 1] * i;
+//         inv_fact[i] = fact[i].inv();
+//     }
+// }
 
-mint C(ll n, ll k) {
-    if (k < 0 || k > n) {
-        return 0;
-    }
+// mint C(ll n, ll k) {
+//     if (k < 0 || k > n) {
+//         return 0;
+//     }
 
-    return fact[n] * inv_fact[n - k] * inv_fact[k];
-}
+//     return fact[n] * inv_fact[n - k] * inv_fact[k];
+// }
 
-class PrefixHash {
+using ull = unsigned long long;
+
+class OrderedPrefixHash {
   private:
-    ll n;
-    vector<mint> prefix_hash1, prefix_hash2;
-    static vector<mint> p1_pow, p2_pow;
-    static vector<mint> inv_p1_pow, inv_p2_pow;
-    static bool powers_computed;
-    static ll maxsize;
+    using m1 = modint1000000007;
+    using m2 = modint998244353;
 
-    static void compute_powers(const ll p1, const ll p2) {
-        p1_pow.resize(maxsize + 1);
-        p2_pow.resize(maxsize + 1);
-        inv_p1_pow.resize(maxsize + 1);
-        inv_p2_pow.resize(maxsize + 1);
+    // Max size of the array / string to prefix hash
+    static const ll max_n = $1;
 
-        p1_pow[0] = p2_pow[0] = inv_p1_pow[0] = inv_p2_pow[0] = 1;
+    inline static m1 base1 = 0;
+    inline static m2 base2 = 0;
 
-        for (ll i = 1; i <= maxsize; i++) {
-            p1_pow[i] = (p1_pow[i - 1] * p1);
-            p2_pow[i] = (p2_pow[i - 1] * p2);
-            inv_p1_pow[i] = p1_pow[i].inv();
-            inv_p2_pow[i] = p2_pow[i].inv();
+    inline static vector<m1> base1_pow;
+    inline static vector<m2> base2_pow;
+
+    vector<m1> pre_hash1;
+    vector<m2> pre_hash2;
+
+    static ull splitmix64(ull x) {
+        // http://xorshift.di.unimi.it/splitmix64.c
+        x += 0x9e3779b97f4a7c15;
+        x = (x ^ (x >> 30)) * 0xbf58476d1ce4e5b9;
+        x = (x ^ (x >> 27)) * 0x94d049bb133111eb;
+        return x ^ (x >> 31);
+    }
+
+    static ull id(ll x) {
+        static const ull FIXED_RANDOM = chrono::steady_clock::now().time_since_epoch().count();
+        return splitmix64(ull(x) + FIXED_RANDOM);
+    }
+
+    static void init() {
+        mt19937_64 rng(chrono::steady_clock::now().time_since_epoch().count());
+        base1 = rng() % (m1::mod() - 3) + 2;
+        base2 = rng() % (m2::mod() - 3) + 2;
+
+        base1_pow.resize(max_n + 1, 1);
+        base2_pow.resize(max_n + 1, 1);
+
+        for (ll i = 1; i <= max_n; i++) {
+            base1_pow[i] = base1_pow[i - 1] * base1;
+            base2_pow[i] = base2_pow[i - 1] * base2;
         }
-
-        powers_computed = true;
     }
 
   public:
-    PrefixHash(string &s, const ll p1 = 31, const ll p2 = 37) : n((ll)s.length()) {
-        if (!powers_computed) {
-            compute_powers(p1, p2);
+    OrderedPrefixHash(const vector<ll> &a) {
+        if (base1 == 0) {
+            init();
         }
 
-        prefix_hash1.resize(n);
-        prefix_hash2.resize(n);
+        ll n = ll(a.size());
+        pre_hash1.resize(n, 0);
+        pre_hash2.resize(n, 0);
 
-        for (ll i = 0; i < n; i++) {
-            prefix_hash1[i] = (((i == 0) ? 0 : prefix_hash1[i - 1]) + (s[i] - 'a' + 1) * p1_pow[i]);
-            prefix_hash2[i] = (((i == 0) ? 0 : prefix_hash2[i - 1]) + (s[i] - 'a' + 1) * p2_pow[i]);
+        pre_hash1[0] = id(a[0]);
+        pre_hash2[0] = id(a[0]);
+
+        for (ll i = 1; i < n; i++) {
+            pre_hash1[i] = pre_hash1[i - 1] * base1 + id(a[i]);
+            pre_hash2[i] = pre_hash2[i - 1] * base2 + id(a[i]);
         }
     }
 
-    pair<ll, ll> substring_hash(ll i, ll j = -1) {
-        if (j == -1) j = n - 1;
+    OrderedPrefixHash(const string &s) {
+        if (base1 == 0) {
+            init();
+        }
 
-        mint hash_0_to_j_1 = prefix_hash1[j];
-        mint hash_0_to_iminus1_1 = ((i == 0) ? 0 : prefix_hash1[i - 1]);
-        mint hash_value_1 = ((hash_0_to_j_1 - hash_0_to_iminus1_1) * inv_p1_pow[i]);
+        ll n = ll(s.length());
+        pre_hash1.resize(n, 0);
+        pre_hash2.resize(n, 0);
 
-        mint hash_0_to_j_2 = prefix_hash2[j];
-        mint hash_0_to_iminus1_2 = ((i == 0) ? 0 : prefix_hash2[i - 1]);
-        mint hash_value_2 = ((hash_0_to_j_2 - hash_0_to_iminus1_2) * inv_p2_pow[i]);
+        pre_hash1[0] = id(s[0]);
+        pre_hash2[0] = id(s[0]);
 
-        return {hash_value_1.val(), hash_value_2.val()};
+        for (ll i = 1; i < n; i++) {
+            pre_hash1[i] = pre_hash1[i - 1] * base1 + id(s[i]);
+            pre_hash2[i] = pre_hash2[i - 1] * base2 + id(s[i]);
+        }
+    }
+
+    pair<ll, ll> segment_hash(ll l, ll r) {
+        if (l > r) {
+            return {0, 0};
+        }
+
+        ll len = r - l + 1;
+        m1 hash1 = pre_hash1[r] - ((l - 1 >= 0) ? pre_hash1[l - 1] : 0) * base1_pow[len];
+        m2 hash2 = pre_hash2[r] - ((l - 1 >= 0) ? pre_hash2[l - 1] : 0) * base2_pow[len];
+
+        return {hash1.val(), hash2.val()};
     }
 };
-
-vector<mint> PrefixHash::p1_pow;
-vector<mint> PrefixHash::p2_pow;
-vector<mint> PrefixHash::inv_p1_pow;
-vector<mint> PrefixHash::inv_p2_pow;
-bool PrefixHash::powers_computed = false;
-
-// --------------- SET THIS ---------------
-
-ll PrefixHash::maxsize = $1;
