@@ -31,18 +31,20 @@ class DSU {
     ll n_comps;
     vector<ll> parent;
     vector<ll> sz;
+    bool zero;
 
   public:
-    DSU(ll n) {
+    DSU(ll n, bool zero = false) {
         // n nodes
         // nodes are 1-based indexed by default
+        // if zero is true, make it 0-based indexed
+
+        this->zero = zero;
 
         parent.resize(n);
         sz.resize(n, 1);
 
-        // change this to n if you are using 0-based indexed nodes
-
-        n_comps = n - 1;$1
+        n_comps = ((!zero) ? n - 1 : n);
 
         iota(parent.begin(), parent.end(), 0LL);
     };
@@ -82,26 +84,16 @@ class DSU {
 
     vector<vector<ll>> comps() {
         ll n = ll(parent.size());
-        vector<ll> index(n);
-        ll idx = 0;
-
-        // change this to 0 if you are using 0-based indexed nodes
-
-        for (ll i = 1$2; i < n; i++) {
-            if (find(i) == i) {
-                index[i] = idx++;
-            }
-        }
-
-        vector<vector<ll>> res(idx);
-
-        // change this to 0 if you are using 0-based indexed nodes
-
-        for (ll i = 1$3; i < n; i++) {
+        vector<ll> index(n, -1);
+        vector<vector<ll>> res;
+        for (ll i = 1 - zero; i < n; i++) {
             ll leader = find(i);
+            if (index[leader] == -1) {
+                index[leader] = ll(res.size());
+                res.push_back({});
+            }
             res[index[leader]].push_back(i);
         }
-
         return res;
     }
 };
