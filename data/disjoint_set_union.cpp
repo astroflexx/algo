@@ -1,23 +1,36 @@
 // Disjoint Set Union
 
-// we have a bunch of components that are represented as trees
-// components are identified by their representative, who is the root of the tree
-// we can find the component a node belongs to or combine two components together in O(1) time
+// You have n elements, initially each of them belong in their own set
+// Lets have a representative / leader for each set, so that element is the ID of the set
+// You can:
+// Union two sets
+// Find the set that an element belongs to (returns the leader of the set)
+// Thus, DSU is also called Union-Find
 
-// read source for path compression + union by size and union by depth optimizations
+// Represent the sets are trees (components)
+// With the root of the tree being the leader of the set
 
-// sources:
+// Now, to union two sets, we just join the leader of the smaller size tree to the leader of the larger size tree
+// And thus the larger tree's leader is the leader of the new tree
+// This is called Union by size (we can also join the smaller depth tree to the larger one, which is called Union by depth)
+// Both ways of joining are optimal / similar to each other
+// This takes O(log(n)) time to do, since we have to first find the leaders of the two trees
+
+// To find the set an element belongs to, we just keep moving to the leader of the current node
+// An optimization here is to now set the found leader as the leader to all nodes on the path that we visited
+// So its like compressing the path and directly adding these nodes to the leader, so the next find() takes less time
+// This is called Path Compression, and also takes O(log(n)) time
+
+// But actually, these 2 optimizations together make these two operations amortized O(1) time
+
+// Sources:
 // cp-algorithms.com (https://cp-algorithms.com/data_structures/disjoint_set_union.html)
 
 class DSU {
-    // components are stored as trees
-    // trees should have least levels / depth as possible
-    // best case 2 levels, worst case log(n) levels
-
   private:
+    ll n_comps;
     vector<ll> parent;
     vector<ll> sz;
-    ll n_comps;
 
   public:
     DSU(ll n) {
@@ -25,86 +38,70 @@ class DSU {
         // nodes are 1-based indexed by default
 
         parent.resize(n);
-        sz.resize(n);
+        sz.resize(n, 1);
 
         // change this to n if you are using 0-based indexed nodes
 
         n_comps = n - 1;$1
 
         iota(parent.begin(), parent.end(), 0LL);
-        fill(sz.begin(), sz.end(), 1LL);
     };
 
-    // the representative / leader of a tree is the root of the tree
-    // find the representative of the tree which the node belongs to
-    // takes O(log(n)) time or almost O(1) time
-
-    ll find_rep(ll node) {
-        if (node == parent[node]) {
-            return node;
+    ll find(ll u) {
+        if (u == parent[u]) {
+            return u;
         }
-
-        return parent[node] = find_rep(parent[node]);
+        return (parent[u] = find(parent[u]));
     }
 
-    // union by depth
-    // join the root of smaller depth tree to the root of larger depth tree
-    // works in O(1) time
-
-    void union_trees(ll node1, ll node2) {
-        ll rep1 = find_rep(node1);
-        ll rep2 = find_rep(node2);
-
-        if (rep1 != rep2) {
-            if (sz[rep1] < sz[rep2]) {
-                swap(rep1, rep2);
+    void unite(ll u, ll v) {
+        ll leader_u = find(u);
+        ll leader_v = find(v);
+        if (leader_u != leader_v) {
+            if (sz[leader_u] < sz[leader_v]) {
+                swap(leader_u, leader_v);
             }
-
-            parent[rep2] = rep1;
-            sz[rep1] += sz[rep2];
+            parent[leader_v] = leader_u;
+            sz[leader_u] += sz[leader_v];
             n_comps--;
         }
     }
 
-    // whether node1 and node2 are in the same component or not
-
-    bool same_component(ll node1, ll node2) { return find_rep(node1) == find_rep(node2); }
-
-    // get the size of the component
-
-    ll size(ll node) {
-        ll rep = find_rep(node);
-        return sz[rep];
+    bool same_component(ll u, ll v) {
+        return (find(u) == find(v));
     }
 
-    // get the number of components
+    ll size(ll u) {
+        ll leader = find(u);
+        return sz[leader];
+    }
 
-    ll no_of_comps() { return n_comps; }
-
-    // get all the components
+    ll no_of_comps() {
+        return n_comps;
+    }
 
     vector<vector<ll>> comps() {
-        ll n = (ll)parent.size();
+        ll n = ll(parent.size());
         vector<ll> index(n);
         ll idx = 0;
 
         // change this to 0 if you are using 0-based indexed nodes
 
         for (ll i = 1$2; i < n; i++) {
-            if (find_rep(i) == i) {
+            if (find(i) == i) {
                 index[i] = idx++;
             }
         }
 
-        vector<vector<ll>> result(idx);
+        vector<vector<ll>> res(idx);
 
         // change this to 0 if you are using 0-based indexed nodes
 
         for (ll i = 1$3; i < n; i++) {
-            ll rep = find_rep(i);
-            result[index[rep]].push_back(i);
+            ll leader = find(i);
+            res[index[leader]].push_back(i);
         }
 
-        return result;
+        return res;
     }
 };
